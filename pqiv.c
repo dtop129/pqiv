@@ -323,7 +323,7 @@ double option_fading_duration = .5;
 double option_keyboard_timeout = .5;
 gint option_max_depth = -1;
 gboolean option_browse = FALSE;
-enum { QUIT, WAIT, WRAP, WRAP_NO_RESHUFFLE } option_end_of_files_action = WRAP;
+enum { QUIT, WAIT, WAITPRINT, WRAP, WRAP_NO_RESHUFFLE } option_end_of_files_action = WRAP;
 enum { ON, OFF, CHANGES_ONLY } option_watch_files = ON;
 gchar *option_disable_backends;
 
@@ -961,6 +961,9 @@ gboolean option_end_of_files_action_callback(const gchar *option_name, const gch
 	}
 	else if(strcmp(value, "wait") == 0) {
 		option_end_of_files_action = WAIT;
+	}
+	else if(strcmp(value, "waitprint") == 0) {
+		option_end_of_files_action = WAITPRINT;
 	}
 	else if(strcmp(value, "wrap") == 0) {
 		option_end_of_files_action = WRAP;
@@ -3280,13 +3283,20 @@ void relative_image_movement(ptrdiff_t movement) {/*{{{*/
 
 	// Check if this movement is allowed
 	if((option_shuffle && shuffled_images_visited_count == bostree_node_count(file_tree)) ||
-		   (!option_shuffle && movement > 0 && bostree_rank(target) <= bostree_rank(current_file_node))) {
+		   (!option_shuffle && movement > 0 && bostree_rank(target) <= bostree_rank(current_file_node)) ||
+		   (!option_shuffle && movement < 0 && bostree_rank(target) >= bostree_rank(current_file_node))) {
 		if(option_end_of_files_action == QUIT) {
 			bostree_node_weak_unref(file_tree, target);
 			gtk_main_quit();
 		}
 		else if(option_end_of_files_action == WAIT) {
 			bostree_node_weak_unref(file_tree, target);
+			return;
+		}
+		else if(option_end_of_files_action == WAITPRINT) {
+			bostree_node_weak_unref(file_tree, target);
+			printf("LASTINDIR:%d\n", movement);
+			fflush(stdout);
 			return;
 		}
 	}
@@ -3336,18 +3346,21 @@ BOSNode *directory_image_movement_find_different_directory(BOSNode *current, int
 		}
 	}
 	else {
+		BOSNode *prevtarget = target;
 		while(TRUE) {
 			// Select next image
-			target = direction > 0 ? bostree_next_node(target) : bostree_previous_node(target);
+			target = direction > 0 ? bostree_next_node(prevtarget) : bostree_previous_node(prevtarget);
 			if(!target) {
-				target = direction > 0 ? bostree_select(file_tree, 0) : bostree_select(file_tree, bostree_node_count(file_tree) - 1);
+				target = prevtarget;
+				//target = direction > 0 ? bostree_select(file_tree, 0) : bostree_select(file_tree, bostree_node_count(file_tree) - 1);
 			}
 
 			// Check for special abort conditions: Again at first image (no different directory found),
 			// or memory image
-			if(target == current || (!logical_directories && FILE(target)->file_flags & FILE_FLAGS_MEMORY_IMAGE)) {
+			if(target == prevtarget || (!logical_directories && FILE(target)->file_flags & FILE_FLAGS_MEMORY_IMAGE)) {
 				break;
 			}
+			prevtarget = target;
 
 			const char *target_name  = logical_directories ? FILE(target)->display_name  : FILE(target)->file_name;
 			const char *current_name = logical_directories ? FILE(current)->display_name : FILE(current)->file_name;
@@ -3404,20 +3417,33 @@ BOSNode *relative_image_pointer_directory(int direction, gboolean logical_direct
 	if(direction == 1) {
 		// Forward searches are trivial
 		target = directory_image_movement_find_different_directory(current, 1, logical_directories);
+		if(!bostree_next_node(target)) {
+			target = current;
+		}
 	}
 	else {
 		// Bardward searches are more involved, because we want to end up at the first image
 		// of the previous directory, not at the last one. The trick is to
 		// search backwards twice and then again go forward by one image.
 		target = directory_image_movement_find_different_directory(current, -1, logical_directories);
-		target = directory_image_movement_find_different_directory(target, -1, logical_directories);
+		if(!bostree_previous_node(target)) {
+			target = current;
+		}
+		else {
+			target = directory_image_movement_find_different_directory(target, -1, logical_directories);
 
-		if(target != current) {
-			target = bostree_next_node(target);
-			if(!target) {
-				target = bostree_select(file_tree, 0);
+			if(target != current && bostree_previous_node(target)) {
+				target = bostree_next_node(target);
+				if(!target) {
+					target = bostree_select(file_tree, 0);
+				}
 			}
 		}
+	}
+
+	if (target == current && option_end_of_files_action == WAITPRINT) {
+		printf("LASTINDIR:%d\n", direction);
+		fflush(stdout);
 	}
 
 	return target;
