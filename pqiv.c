@@ -685,6 +685,7 @@ const struct pqiv_action_descriptor {
 	{ "remove_file_byindex", PARAMETER_INT },
 	{ "remove_file_byname", PARAMETER_CHARPTR },
 	{ "output_file_list", PARAMETER_NONE },
+	{ "output_string", PARAMETER_CHARPTR },
 	{ "set_cursor_visibility", PARAMETER_INT },
 	{ "set_status_output", PARAMETER_INT },
 	{ "set_scale_mode_fit_px", PARAMETER_2SHORT },
@@ -6024,6 +6025,12 @@ void action(pqiv_action_t action_id, pqiv_action_parameter_t parameter) {/*{{{*/
 				}
 				D_UNLOCK(file_tree);
 			}
+
+			break;
+
+		case ACTION_OUTPUT_STRING:
+			printf("%s\n", parameter.pcharptr);
+			fflush(stdout);
 
 			break;
 
