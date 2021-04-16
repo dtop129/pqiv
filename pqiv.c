@@ -3296,7 +3296,7 @@ void relative_image_movement(ptrdiff_t movement) {/*{{{*/
 		}
 		else if(option_end_of_files_action == WAITPRINT) {
 			bostree_node_weak_unref(file_tree, target);
-			printf("LASTINDIR:%d\n", movement);
+			printf("LASTINDIR:%td\n", movement);
 			fflush(stdout);
 			return;
 		}
