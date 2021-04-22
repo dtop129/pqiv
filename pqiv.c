@@ -1937,6 +1937,9 @@ void load_images() {/*{{{*/
 	}
 
 	// Load the images from the remaining parameters
+	if (*argc > 2) {
+		option_browse = FALSE;
+	}
 	for(int i=1; i<*argc; i++) {
 		if(argv[i][0]) {
 			load_images_handle_parameter(argv[i], PARAMETER, 0, NULL);
