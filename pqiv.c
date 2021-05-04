@@ -6733,6 +6733,7 @@ gboolean window_configure_callback(GtkWidget *widget, GdkEventConfigure *event, 
 		requested_main_window_width = -1;
 	}
 
+
 	if(wm_ignores_size_requests || (main_window_width != event->width || main_window_height != event->height)) {
 		// Reset cached font size for info text
 		#ifndef CONFIGURED_WITHOUT_INFO_TEXT
@@ -6761,9 +6762,7 @@ gboolean window_configure_callback(GtkWidget *widget, GdkEventConfigure *event, 
 		}
 
 		// Rescale the image
-		if(main_window_width != event->width || main_window_height != event->height) {
-			set_scale_level_to_fit();
-		}
+		set_scale_level_to_fit();
 		queue_draw();
 
 		// We need to redraw in old GTK versions to avoid artifacts
