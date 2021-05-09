@@ -3299,7 +3299,7 @@ void relative_image_movement(ptrdiff_t movement) {/*{{{*/
 		}
 		else if(option_end_of_files_action == WAITPRINT) {
 			bostree_node_weak_unref(file_tree, target);
-			printf("LASTINDIR:%td\n", movement);
+			printf("LASTINDIR=%td\n", movement);
 			fflush(stdout);
 			return;
 		}
@@ -3446,7 +3446,7 @@ BOSNode *relative_image_pointer_directory(int direction, gboolean logical_direct
 	}
 
 	if (target == current && option_end_of_files_action == WAITPRINT) {
-		printf("LASTINDIR:%d\n", direction);
+		printf("LASTINDIR=%d\n", direction);
 		fflush(stdout);
 	}
 
