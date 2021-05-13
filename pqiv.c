@@ -4176,6 +4176,8 @@ gboolean window_fullscreen_helper_reset_transition_id() {/*{{{*/
 	return FALSE;
 }/*}}}*/
 void window_fullscreen() {/*{{{*/
+	if(main_window_in_fullscreen) return;
+
 	if(is_current_file_loaded()) {
 		main_window_in_fullscreen = TRUE;
 		image_generate_prerendered_view(CURRENT_FILE, FALSE, -1);
@@ -4215,6 +4217,8 @@ void window_fullscreen() {/*{{{*/
 	gtk_window_fullscreen(main_window);
 }/*}}}*/
 void window_unfullscreen() {/*{{{*/
+	if(!main_window_in_fullscreen) return;
+
 	if(is_current_file_loaded()) {
 		main_window_in_fullscreen = FALSE;
 		image_generate_prerendered_view(CURRENT_FILE, FALSE, -1);
