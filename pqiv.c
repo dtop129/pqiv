@@ -7898,14 +7898,14 @@ gboolean perform_string_action(const gchar *string_action) {/*{{{*/
 		g_printerr("Invalid command: Missing parameter list.\n");
 		return FALSE;
 	}
-	while(*scan && *scan != ')') {
-		if(*scan == '\\' && scan[1]) {
-			scan++;
-		}
-		scan++;
+	const gchar *scan2 = scan;
+	while (*scan2) {
+		if (*scan2 == ')')
+			scan = scan2;
+		scan2++;
 	}
 	parameter_end = scan - 1;
-	if(*scan != ')') {
+	if(scan == string_action) {
 		g_printerr("Invalid command: Missing closing parenthesis.\n");
 		return FALSE;
 	}
@@ -7922,15 +7922,7 @@ gboolean perform_string_action(const gchar *string_action) {/*{{{*/
 			command_found = TRUE;
 
 			gchar *parameter = g_malloc(parameter_length + 1);
-			for(int i=0, j=0; j<parameter_length; i++, j++) {
-				if(parameter_start[j] == '\\') {
-					if(++j > parameter_length) {
-						break;
-					}
-				}
-				parameter[i] = parameter_start[j];
-			}
-			parameter[parameter_length] = 0;
+			g_utf8_strncpy(parameter, parameter_start, parameter_length);
 
 			pqiv_action_parameter_t parsed_parameter;
 			switch(descriptor->parameter_type) {
