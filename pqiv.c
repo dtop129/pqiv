@@ -1695,9 +1695,14 @@ void load_images_handle_parameter(char *param, load_images_state_t state, gint d
 				}
 
 				gchar *dir_entry_full = g_strdup_printf("%s%s%s", param, g_str_has_suffix(param, G_DIR_SEPARATOR_S) ? "" : G_DIR_SEPARATOR_S, dir_entry);
-				if(!(original_parameter != NULL && g_strcmp0(dir_entry_full, original_parameter) == 0)) {
+
+				if(!(original_parameter != NULL && (g_strcmp0(dir_entry, original_parameter) == 0 || g_strcmp0(dir_entry_full, original_parameter) == 0))) {
 					// Skip if we are in --browse mode and this is the file which we have already added above.
-					load_images_handle_parameter(dir_entry_full, RECURSION, depth + 1, recursion_folder_stack);
+					gchar* load_entry = dir_entry_full;
+					if (load_entry[0] == '.' && load_entry[1] == '/') {
+						load_entry += 2;
+					}
+					load_images_handle_parameter(load_entry, RECURSION, depth + 1, recursion_folder_stack);
 				}
 				g_free(dir_entry_full);
 
