@@ -4309,6 +4309,10 @@ void update_info_text(const gchar *action) {/*{{{*/
 				current_info_text = g_strdup(none_loaded);
 			}
 		}
+		else if(current_info_text != NULL) {
+			g_free(current_info_text);
+			current_info_text = NULL;
+		}
 		gtk_window_set_title(GTK_WINDOW(main_window), "pqiv: No image loaded");
 		D_UNLOCK(file_tree);
 		return;
