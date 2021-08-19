@@ -5945,7 +5945,7 @@ void action(pqiv_action_t action_id, pqiv_action_parameter_t parameter) {/*{{{*/
 
 #ifndef CONFIGURED_WITHOUT_ACTIONS
 		case ACTION_ADD_FILE:
-			g_thread_new("image-loader-from-action", (GThreadFunc)load_images_handle_parameter_thread, g_strdup(parameter.pcharptr));
+			load_images_handle_parameter(parameter.pcharptr, PARAMETER, 0, NULL);
 			break;
 
 		case ACTION_GOTO_FILE_BYINDEX:
