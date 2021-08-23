@@ -2334,14 +2334,12 @@ gboolean image_loaded_handler(gconstpointer node) {/*{{{*/
 	}
 
 	// Activate fading
-	if(option_fading) {
+	if(option_fading && last_visible_surface) {
 		if(fading_surface) {
 			cairo_surface_destroy(fading_surface);
 			fading_surface = NULL;
 		}
-		if(last_visible_surface) {
-			fading_surface = cairo_surface_reference(last_visible_surface);
-		}
+		fading_surface = cairo_surface_reference(last_visible_surface);
 
 		if(fading_current_alpha_stage > 0 && fading_current_alpha_stage < 1.) {
 			// If another fade was already active, don't start another one.
